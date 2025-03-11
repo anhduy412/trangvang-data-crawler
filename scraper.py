@@ -74,4 +74,4 @@ for page in range(1, 3):
 df = pd.DataFrame(company_info)
 
 # Save the DataFrame to a CSV file
-df.to_csv('company_info1.csv', index=False, encoding='utf-8-sig')
+df.to_csv('company_info.csv', index=False, encoding='utf-8-sig')
