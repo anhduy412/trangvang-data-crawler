@@ -1,103 +1,16 @@
 from bs4 import BeautifulSoup
+import pandas as pd
 import itertools
 import requests
-import pandas as pd
+import config
 
-# Base URL of the website
-# tphcm
-# đồng nai
-# bình dương
-# bà rịa vũng tàu
-# bình phước
-# tây ninh
-# long an
-# tiền giang
-url_list = [
-    # 'https://trangvangvietnam.com/cateprovinces/68660/v%E1%BA%ADn-t%E1%BA%A3i-container-%E1%BB%9F-t%E1%BA%A1i-tp.-h%E1%BB%93-ch%C3%AD-minh-(tphcm).html?page=',
-    # 'https://trangvangvietnam.com/cateprovinces/68660/v%E1%BA%ADn-t%E1%BA%A3i-container-%E1%BB%9F-t%E1%BA%A1i-%C4%91%E1%BB%93ng-nai.html?page=',
-    # 'https://trangvangvietnam.com/cateprovinces/68660/v%E1%BA%ADn-t%E1%BA%A3i-container-%E1%BB%9F-t%E1%BA%A1i-b%C3%ACnh-d%C6%B0%C6%A1ng.html?page=',
-    # 'https://trangvangvietnam.com/cateprovinces/68660/v%E1%BA%ADn-t%E1%BA%A3i-container-%E1%BB%9F-t%E1%BA%A1i-b%C3%A0-r%E1%BB%8Ba-v%C5%A9ng-t%C3%A0u.html?page=',
-    # 'https://trangvangvietnam.com/cateprovinces/68660/v%E1%BA%ADn-t%E1%BA%A3i-container-%E1%BB%9F-t%E1%BA%A1i-b%C3%ACnh-ph%C6%B0%E1%BB%9Bc.html?page=',
-    # 'https://trangvangvietnam.com/cateprovinces/68660/v%E1%BA%ADn-t%E1%BA%A3i-container-%E1%BB%9F-t%E1%BA%A1i-t%C3%A2y-ninh.html?page=',
-    # 'https://trangvangvietnam.com/cateprovinces/68660/v%E1%BA%ADn-t%E1%BA%A3i-container-%E1%BB%9F-t%E1%BA%A1i-long-an.html?page=',
-    # 'https://trangvangvietnam.com/cateprovinces/68660/v%E1%BA%ADn-t%E1%BA%A3i-container-%E1%BB%9F-t%E1%BA%A1i-ti%E1%BB%81n-giang.html?page=',
-    # 'https://trangvangvietnam.com/cateprovinces/68710/container-c%C3%A1c-lo%E1%BA%A1i-container-%2810-feet-20-feet-40-feet%2C.%29-%E1%BB%9F-t%E1%BA%A1i-tp.-h%E1%BB%93-ch%C3%AD-minh-%28tphcm%29.html?page=',
-    # 'https://trangvangvietnam.com/cateprovinces/68710/container-c%C3%A1c-lo%E1%BA%A1i-container-%2810-feet-20-feet-40-feet%2C.%29-%E1%BB%9F-t%E1%BA%A1i-%C4%91%E1%BB%93ng-nai.html?page=',
-    # 'https://trangvangvietnam.com/cateprovinces/68710/container-c%C3%A1c-lo%E1%BA%A1i-container-%2810-feet-20-feet-40-feet%2C.%29-%E1%BB%9F-t%E1%BA%A1i-b%C3%ACnh-d%C6%B0%C6%A1ng.html?page=',
-    # 'https://trangvangvietnam.com/cateprovinces/68710/container-c%C3%A1c-lo%E1%BA%A1i-container-%2810-feet-20-feet-40-feet%2C.%29-%E1%BB%9F-t%E1%BA%A1i-b%C3%A0-r%E1%BB%8Ba-v%C5%A9ng-t%C3%A0u.html?page=',
-    # 'https://trangvangvietnam.com/cateprovinces/68710/container-c%C3%A1c-lo%E1%BA%A1i-container-%2810-feet-20-feet-40-feet%2C.%29-%E1%BB%9F-t%E1%BA%A1i-b%C3%ACnh-ph%C6%B0%E1%BB%9Bc.html?page=',
-    # 'https://trangvangvietnam.com/cateprovinces/68710/container-c%C3%A1c-lo%E1%BA%A1i-container-%2810-feet-20-feet-40-feet%2C.%29-%E1%BB%9F-t%E1%BA%A1i-t%C3%A2y-ninh.html?page=',
-    # 'https://trangvangvietnam.com/cateprovinces/68710/container-c%C3%A1c-lo%E1%BA%A1i-container-%2810-feet-20-feet-40-feet%2C.%29-%E1%BB%9F-t%E1%BA%A1i-long-an.html?page=',
-    # 'https://trangvangvietnam.com/cateprovinces/68710/container-c%C3%A1c-lo%E1%BA%A1i-container-%2810-feet-20-feet-40-feet%2C.%29-%E1%BB%9F-t%E1%BA%A1i-ti%E1%BB%81n-giang.html?page=',
-    # 'https://trangvangvietnam.com/cateprovinces/68710/mua-b%C3%A1n-container-%E1%BB%9F-t%E1%BA%A1i-tp.-h%E1%BB%93-ch%C3%AD-minh-(tphcm).html?page=',
-    # 'https://trangvangvietnam.com/cateprovinces/68710/mua-b%C3%A1n-container-%E1%BB%9F-t%E1%BA%A1i-%C4%91%E1%BB%93ng-nai.html?page=',
-    # 'https://trangvangvietnam.com/cateprovinces/68710/mua-b%C3%A1n-container-%E1%BB%9F-t%E1%BA%A1i-b%C3%ACnh-d%C6%B0%C6%A1ng.html?page=',
-    # 'https://trangvangvietnam.com/cateprovinces/68710/mua-b%C3%A1n-container-%E1%BB%9F-t%E1%BA%A1i-b%C3%A0-r%E1%BB%8Ba-v%C5%A9ng-t%C3%A0u.html?page=',
-    # 'https://trangvangvietnam.com/cateprovinces/68710/mua-b%C3%A1n-container-%E1%BB%9F-t%E1%BA%A1i-b%C3%ACnh-ph%C6%B0%E1%BB%9Bc.html?page=',
-    # 'https://trangvangvietnam.com/cateprovinces/68710/mua-b%C3%A1n-container-%E1%BB%9F-t%E1%BA%A1i-t%C3%A2y-ninh.html?page=',
-    # 'https://trangvangvietnam.com/cateprovinces/68710/mua-b%C3%A1n-container-%E1%BB%9F-t%E1%BA%A1i-long-an.html?page=',
-    # 'https://trangvangvietnam.com/cateprovinces/68710/mua-b%C3%A1n-container-%E1%BB%9F-t%E1%BA%A1i-ti%E1%BB%81n-giang.html?page=',
-    # 'https://trangvangvietnam.com/cateprovinces/485626/cho-thu%C3%AA-container-%E1%BB%9F-t%E1%BA%A1i-tp.-h%E1%BB%93-ch%C3%AD-minh-(tphcm).html?page=',
-    'https://trangvangvietnam.com/cateprovinces/485626/cho-thu%C3%AA-container-%E1%BB%9F-t%E1%BA%A1i-%C4%91%E1%BB%93ng-nai.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/485626/cho-thu%C3%AA-container-%E1%BB%9F-t%E1%BA%A1i-b%C3%ACnh-d%C6%B0%C6%A1ng.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/485626/cho-thu%C3%AA-container-%E1%BB%9F-t%E1%BA%A1i-b%C3%A0-r%E1%BB%8Ba-v%C5%A9ng-t%C3%A0u.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/485626/cho-thu%C3%AA-container-%E1%BB%9F-t%E1%BA%A1i-b%C3%ACnh-ph%C6%B0%E1%BB%9Bc.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/485626/cho-thu%C3%AA-container-%E1%BB%9F-t%E1%BA%A1i-t%C3%A2y-ninh.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/485626/cho-thu%C3%AA-container-%E1%BB%9F-t%E1%BA%A1i-long-an.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/485626/cho-thu%C3%AA-container-%E1%BB%9F-t%E1%BA%A1i-ti%E1%BB%81n-giang.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/188960/c%E1%BA%A3ng-v%E1%BB%A5-%E1%BB%9F-t%E1%BA%A1i-tp.-h%E1%BB%93-ch%C3%AD-minh-%28tphcm%29.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/188960/c%E1%BA%A3ng-v%E1%BB%A5-%E1%BB%9F-t%E1%BA%A1i-%C4%91%E1%BB%93ng-nai.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/188960/c%E1%BA%A3ng-v%E1%BB%A5-%E1%BB%9F-t%E1%BA%A1i-b%C3%ACnh-d%C6%B0%C6%A1ng.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/188960/c%E1%BA%A3ng-v%E1%BB%A5-%E1%BB%9F-t%E1%BA%A1i-b%C3%A0-r%E1%BB%8Ba-v%C5%A9ng-t%C3%A0u.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/188960/c%E1%BA%A3ng-v%E1%BB%A5-%E1%BB%9F-t%E1%BA%A1i-b%C3%ACnh-ph%C6%B0%E1%BB%9Bc.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/188960/c%E1%BA%A3ng-v%E1%BB%A5-%E1%BB%9F-t%E1%BA%A1i-t%C3%A2y-ninh.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/188960/c%E1%BA%A3ng-v%E1%BB%A5-%E1%BB%9F-t%E1%BA%A1i-long-an.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/188960/c%E1%BA%A3ng-v%E1%BB%A5-%E1%BB%9F-t%E1%BA%A1i-ti%E1%BB%81n-giang.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/486112/d%E1%BB%8Bch-v%E1%BB%A5-kho-b%C3%A3i-%E1%BB%9F-t%E1%BA%A1i-tp.-h%E1%BB%93-ch%C3%AD-minh-(tphcm).html?page=',
-    'https://trangvangvietnam.com/cateprovinces/486112/d%E1%BB%8Bch-v%E1%BB%A5-kho-b%C3%A3i-%E1%BB%9F-t%E1%BA%A1i-%C4%91%E1%BB%93ng-nai.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/486112/d%E1%BB%8Bch-v%E1%BB%A5-kho-b%C3%A3i-%E1%BB%9F-t%E1%BA%A1i-b%C3%ACnh-d%C6%B0%C6%A1ng.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/486112/d%E1%BB%8Bch-v%E1%BB%A5-kho-b%C3%A3i-%E1%BB%9F-t%E1%BA%A1i-b%C3%A0-r%E1%BB%8Ba-v%C5%A9ng-t%C3%A0u.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/486112/d%E1%BB%8Bch-v%E1%BB%A5-kho-b%C3%A3i-%E1%BB%9F-t%E1%BA%A1i-b%C3%ACnh-ph%C6%B0%E1%BB%9Bc.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/486112/d%E1%BB%8Bch-v%E1%BB%A5-kho-b%C3%A3i-%E1%BB%9F-t%E1%BA%A1i-t%C3%A2y-ninh.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/486112/d%E1%BB%8Bch-v%E1%BB%A5-kho-b%C3%A3i-%E1%BB%9F-t%E1%BA%A1i-long-an.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/486112/d%E1%BB%8Bch-v%E1%BB%A5-kho-b%C3%A3i-%E1%BB%9F-t%E1%BA%A1i-ti%E1%BB%81n-giang.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/386770/kho-b%C3%A3i-cho-thu%C3%AA-%E1%BB%9F-t%E1%BA%A1i-tp.-h%E1%BB%93-ch%C3%AD-minh-(tphcm).html?page=',
-    'https://trangvangvietnam.com/cateprovinces/386770/kho-b%C3%A3i-cho-thu%C3%AA-%E1%BB%9F-t%E1%BA%A1i-%C4%91%E1%BB%93ng-nai.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/386770/kho-b%C3%A3i-cho-thu%C3%AA-%E1%BB%9F-t%E1%BA%A1i-b%C3%ACnh-d%C6%B0%C6%A1ng.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/386770/kho-b%C3%A3i-cho-thu%C3%AA-%E1%BB%9F-t%E1%BA%A1i-b%C3%A0-r%E1%BB%8Ba-v%C5%A9ng-t%C3%A0u.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/386770/kho-b%C3%A3i-cho-thu%C3%AA-%E1%BB%9F-t%E1%BA%A1i-b%C3%ACnh-ph%C6%B0%E1%BB%9Bc.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/386770/kho-b%C3%A3i-cho-thu%C3%AA-%E1%BB%9F-t%E1%BA%A1i-t%C3%A2y-ninh.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/386770/kho-b%C3%A3i-cho-thu%C3%AA-%E1%BB%9F-t%E1%BA%A1i-long-an.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/386770/kho-b%C3%A3i-cho-thu%C3%AA-%E1%BB%9F-t%E1%BA%A1i-ti%E1%BB%81n-giang.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/488923/xu%E1%BA%A5t-nh%E1%BA%ADp-kh%E1%BA%A9u-d%E1%BB%8Bch-v%E1%BB%A5-xu%E1%BA%A5t-nh%E1%BA%ADp-kh%E1%BA%A9u-%E1%BB%9F-t%E1%BA%A1i-tp.-h%E1%BB%93-ch%C3%AD-minh-%28tphcm%29.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/488923/xu%E1%BA%A5t-nh%E1%BA%ADp-kh%E1%BA%A9u-d%E1%BB%8Bch-v%E1%BB%A5-xu%E1%BA%A5t-nh%E1%BA%ADp-kh%E1%BA%A9u-%E1%BB%9F-t%E1%BA%A1i-%C4%91%E1%BB%93ng-nai.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/488923/xu%E1%BA%A5t-nh%E1%BA%ADp-kh%E1%BA%A9u-d%E1%BB%8Bch-v%E1%BB%A5-xu%E1%BA%A5t-nh%E1%BA%ADp-kh%E1%BA%A9u-%E1%BB%9F-t%E1%BA%A1i-b%C3%ACnh-d%C6%B0%C6%A1ng.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/488923/xu%E1%BA%A5t-nh%E1%BA%ADp-kh%E1%BA%A9u-d%E1%BB%8Bch-v%E1%BB%A5-xu%E1%BA%A5t-nh%E1%BA%ADp-kh%E1%BA%A9u-%E1%BB%9F-t%E1%BA%A1i-b%C3%A0-r%E1%BB%8Ba-v%C5%A9ng-t%C3%A0u.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/488923/xu%E1%BA%A5t-nh%E1%BA%ADp-kh%E1%BA%A9u-d%E1%BB%8Bch-v%E1%BB%A5-xu%E1%BA%A5t-nh%E1%BA%ADp-kh%E1%BA%A9u-%E1%BB%9F-t%E1%BA%A1i-b%C3%ACnh-ph%C6%B0%E1%BB%9Bc.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/488923/xu%E1%BA%A5t-nh%E1%BA%ADp-kh%E1%BA%A9u-d%E1%BB%8Bch-v%E1%BB%A5-xu%E1%BA%A5t-nh%E1%BA%ADp-kh%E1%BA%A9u-%E1%BB%9F-t%E1%BA%A1i-t%C3%A2y-ninh.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/488923/xu%E1%BA%A5t-nh%E1%BA%ADp-kh%E1%BA%A9u-d%E1%BB%8Bch-v%E1%BB%A5-xu%E1%BA%A5t-nh%E1%BA%ADp-kh%E1%BA%A9u-%E1%BB%9F-t%E1%BA%A1i-long-an.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/488923/xu%E1%BA%A5t-nh%E1%BA%ADp-kh%E1%BA%A9u-d%E1%BB%8Bch-v%E1%BB%A5-xu%E1%BA%A5t-nh%E1%BA%ADp-kh%E1%BA%A9u-%E1%BB%9F-t%E1%BA%A1i-ti%E1%BB%81n-giang.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/107560/v%E1%BA%ADn-chuy%E1%BB%83n-h%C3%A0ng-h%C3%B3a-giao-nh%E1%BA%ADn-v%E1%BA%ADn-chuy%E1%BB%83n-h%C3%A0ng-h%C3%B3a-%E1%BB%9F-t%E1%BA%A1i-tp.-h%E1%BB%93-ch%C3%AD-minh-%28tphcm%29.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/107560/v%E1%BA%ADn-chuy%E1%BB%83n-h%C3%A0ng-h%C3%B3a-giao-nh%E1%BA%ADn-v%E1%BA%ADn-chuy%E1%BB%83n-h%C3%A0ng-h%C3%B3a-%E1%BB%9F-t%E1%BA%A1i-%C4%91%E1%BB%93ng-nai.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/107560/v%E1%BA%ADn-chuy%E1%BB%83n-h%C3%A0ng-h%C3%B3a-giao-nh%E1%BA%ADn-v%E1%BA%ADn-chuy%E1%BB%83n-h%C3%A0ng-h%C3%B3a-%E1%BB%9F-t%E1%BA%A1i-b%C3%ACnh-d%C6%B0%C6%A1ng.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/107560/v%E1%BA%ADn-chuy%E1%BB%83n-h%C3%A0ng-h%C3%B3a-giao-nh%E1%BA%ADn-v%E1%BA%ADn-chuy%E1%BB%83n-h%C3%A0ng-h%C3%B3a-%E1%BB%9F-t%E1%BA%A1i-b%C3%A0-r%E1%BB%8Ba-v%C5%A9ng-t%C3%A0u.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/107560/v%E1%BA%ADn-chuy%E1%BB%83n-h%C3%A0ng-h%C3%B3a-giao-nh%E1%BA%ADn-v%E1%BA%ADn-chuy%E1%BB%83n-h%C3%A0ng-h%C3%B3a-%E1%BB%9F-t%E1%BA%A1i-b%C3%ACnh-ph%C6%B0%E1%BB%9Bc.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/107560/v%E1%BA%ADn-chuy%E1%BB%83n-h%C3%A0ng-h%C3%B3a-giao-nh%E1%BA%ADn-v%E1%BA%ADn-chuy%E1%BB%83n-h%C3%A0ng-h%C3%B3a-%E1%BB%9F-t%E1%BA%A1i-t%C3%A2y-ninh.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/107560/v%E1%BA%ADn-chuy%E1%BB%83n-h%C3%A0ng-h%C3%B3a-giao-nh%E1%BA%ADn-v%E1%BA%ADn-chuy%E1%BB%83n-h%C3%A0ng-h%C3%B3a-%E1%BB%9F-t%E1%BA%A1i-long-an.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/107560/v%E1%BA%ADn-chuy%E1%BB%83n-h%C3%A0ng-h%C3%B3a-giao-nh%E1%BA%ADn-v%E1%BA%ADn-chuy%E1%BB%83n-h%C3%A0ng-h%C3%B3a-%E1%BB%9F-t%E1%BA%A1i-ti%E1%BB%81n-giang.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/484645/logistics-d%E1%BB%8Bch-v%E1%BB%A5-logistics-%E1%BB%9F-t%E1%BA%A1i-tp.-h%E1%BB%93-ch%C3%AD-minh-%28tphcm%29.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/484645/logistics-d%E1%BB%8Bch-v%E1%BB%A5-logistics-%E1%BB%9F-t%E1%BA%A1i-%C4%91%E1%BB%93ng-nai.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/484645/logistics-d%E1%BB%8Bch-v%E1%BB%A5-logistics-%E1%BB%9F-t%E1%BA%A1i-b%C3%ACnh-d%C6%B0%C6%A1ng.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/484645/logistics-d%E1%BB%8Bch-v%E1%BB%A5-logistics-%E1%BB%9F-t%E1%BA%A1i-b%C3%A0-r%E1%BB%8Ba-v%C5%A9ng-t%C3%A0u.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/484645/logistics-d%E1%BB%8Bch-v%E1%BB%A5-logistics-%E1%BB%9F-t%E1%BA%A1i-b%C3%ACnh-ph%C6%B0%E1%BB%9Bc.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/484645/logistics-d%E1%BB%8Bch-v%E1%BB%A5-logistics-%E1%BB%9F-t%E1%BA%A1i-t%C3%A2y-ninh.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/484645/logistics-d%E1%BB%8Bch-v%E1%BB%A5-logistics-%E1%BB%9F-t%E1%BA%A1i-long-an.html?page=',
-    'https://trangvangvietnam.com/cateprovinces/484645/logistics-d%E1%BB%8Bch-v%E1%BB%A5-logistics-%E1%BB%9F-t%E1%BA%A1i-ti%E1%BB%81n-giang.html?page='
-]
+# Load the URL list from the config file
+url_list = config.url_list
 
 # Initialize an empty list to hold company info
 company_info = []
 
+# Function to extract specialisation from the URL
 def extract_specialisation(url):
     specialisation = url.split('cateprovinces/')[1].split('/')[1].split('-ở-tại')[0]
     specialisation = requests.utils.unquote(specialisation)
@@ -106,7 +19,6 @@ def extract_specialisation(url):
 
 # Loop through each URL in the list
 for base_url, page in itertools.product(url_list, range(1, 10)):
-    # Construct the full URL for the current page
     url = f"{base_url}{page}"
 
     # Send a request to the website
@@ -116,7 +28,7 @@ for base_url, page in itertools.product(url_list, range(1, 10)):
     # Find all company entries on the current page
     companies = soup.find_all('div', class_='w-100 h-auto shadow rounded-3 bg-white p-2 mb-3')
 
-    # Loop through each company entry and extract details
+    # Loop through each company in url_list and extract details
     for company in companies:
         # Extract company name
         name = company.find('h2', class_="p-1 fs-5 h2 m-0 pt-0 ps-0 text-capitalize").get_text(strip=True)
@@ -126,16 +38,12 @@ for base_url, page in itertools.product(url_list, range(1, 10)):
             address = address_div.find_all('div')[1].get_text(strip=True) if len(address_div.find_all('div')) > 1 else ''
         elif address_div := company.find('div', class_='listing_diachi_nologo'):
             address = address_div.find_all('div')[1].get_text(strip=True) if len(address_div.find_all('div')) > 1 else ''
-        else:
-            address = ''
 
         # Extract phone number
         if phone_div := company.find('div', class_='listing_dienthoai'):
             phone = phone_div.find('a').get_text(strip=True) if phone_div.find('a') else ''
         elif phone_div := company.find('div', class_='p-2 pt-0 ps-0 pe-4 pb-0'):
             phone = phone_div.find('a').get_text(strip=True) if phone_div.find('a') else ''
-        else:
-            phone = ''
 
         # Extract email and website
         email_section = company.find('div', class_='email_web_section')
@@ -144,7 +52,7 @@ for base_url, page in itertools.product(url_list, range(1, 10)):
 
         if email_section:
             if email_link := email_section.find('a', href=lambda href: href and 'mailto:' in href):
-                email = email_link['href'].replace('mailto:', '').strip()  # Extract email from href
+                email = email_link['href'].replace('mailto:', '').strip()
 
             if website_link := email_section.find(
                 'a', href=lambda href: href and 'http' in href
@@ -186,7 +94,7 @@ for base_url, page in itertools.product(url_list, range(1, 10)):
             'Position': position,
             'Customer Phone Number': customer_phone_number,
             'Email Address': email,
-            'Specialise': specialisation  # Add the specialisation column
+            'Specialise': specialisation
         })
 
 # Create a DataFrame from the list
