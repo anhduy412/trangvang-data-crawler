@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import itertools
 import requests
+from utils import *
 import config
 
 # Load the URL list from the config file
@@ -10,15 +11,8 @@ url_list = config.url_list
 # Initialize an empty list to hold company info
 company_info = []
 
-# Function to extract specialisation from the URL
-def extract_specialisation(url):
-    specialisation = url.split('cateprovinces/')[1].split('/')[1].split('-ở-tại')[0]
-    specialisation = requests.utils.unquote(specialisation)
-    specialisation = specialisation.replace('-', ' ')
-    return specialisation
-
 # Loop through each URL in the list
-for base_url, page in itertools.product(url_list, range(1, 10)):
+for base_url, page in itertools.product(url_list, range(17)):
     url = f"{base_url}{page}"
 
     # Send a request to the website
@@ -84,7 +78,7 @@ for base_url, page in itertools.product(url_list, range(1, 10)):
         # Extract specialisation from the base URL
         specialisation = extract_specialisation(base_url)
 
-        # Append the extracted info to the list in the correct order
+        # Append the extracted info to the list
         company_info.append({
             'Company Name': name,
             'Website': website,
@@ -97,12 +91,12 @@ for base_url, page in itertools.product(url_list, range(1, 10)):
             'Specialise': specialisation
         })
 
-# Create a DataFrame from the list
+# Create a DataFrame from the list 
 df = pd.DataFrame(company_info)
 
 # Remove duplicate rows
 df = df.drop_duplicates()
 
 # Save the DataFrame to a CSV file
-df.to_csv('company_info1.csv', index=False, encoding='utf-8-sig')
+df.to_csv('company_info.csv', index=False, encoding='utf-8-sig')
 print("Done.")
