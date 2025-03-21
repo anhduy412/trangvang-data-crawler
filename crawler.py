@@ -11,7 +11,7 @@ url_list = config.url_list
 # Initialize an empty list to hold company info
 company_info = []
 
-# Loop through each URL in the list
+# Loop through each URL in the list, fix the range before running
 for base_url, page in itertools.product(url_list, range(17)):
     url = f"{base_url}{page}"
 
@@ -98,5 +98,10 @@ df = pd.DataFrame(company_info)
 df = df.drop_duplicates()
 
 # Save the DataFrame to a CSV file
-df.to_csv('company_info.csv', index=False, encoding='utf-8-sig')
+df.to_csv('company_info_cnh.csv', index=False, encoding='utf-8-sig')
 print("Done.")
+
+# url_list = config.url_list
+# company_info = utils.scrape_companies(url_list)
+# utils.save_to_csv(company_info, 'company_info1.csv')
+# print("Done.")
