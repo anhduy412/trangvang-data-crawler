@@ -100,8 +100,3 @@ df = df.drop_duplicates()
 # Save the DataFrame to a CSV file
 df.to_csv('company_info_cnh.csv', index=False, encoding='utf-8-sig')
 print("Done.")
-
-# url_list = config.url_list
-# company_info = utils.scrape_companies(url_list)
-# utils.save_to_csv(company_info, 'company_info1.csv')
-# print("Done.")
