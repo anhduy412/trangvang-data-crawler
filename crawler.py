@@ -5,14 +5,11 @@ import requests
 import config
 import utils
 
-# Load the URL list from the config file
-url_list = config.url_list
-
 # Initialize an empty list to hold company info
 company_info = []
 
 # Loop through each URL in the list, fix the range before running
-for base_url, page in itertools.product(url_list, range(17)):
+for base_url, page in itertools.product(config.url_list, range(1)):
     url = f"{base_url}{page}"
 
     # Send a request to the website
@@ -98,5 +95,5 @@ df = pd.DataFrame(company_info)
 df = df.drop_duplicates()
 
 # Save the DataFrame to a CSV file
-df.to_csv('company_info_cnh.csv', index=False, encoding='utf-8-sig')
+df.to_csv(config.file_name, index=False, encoding='utf-8-sig')
 print("Done.")
