@@ -3,13 +3,12 @@ import pandas as pd
 import itertools
 import requests
 import config
-import utils
 
 # Initialize an empty list to hold company info
 company_info = []
 
 # Loop through each URL in the list, fix the range before running
-for base_url, page in itertools.product(config.url_list, range(1)):
+for base_url, page in itertools.product(config.url_list, range(2)):
     url = f"{base_url}{page}"
 
     # Send a request to the website
@@ -26,7 +25,7 @@ for base_url, page in itertools.product(config.url_list, range(1)):
 
         # Extract address
         if address_div := company.find('div', class_='logo_congty_diachi'): # type: ignore
-            address = address_div.find_all('div')[1].get_text(strip=True) if len(address_div.find_all('div')) > 1 else '' # type: ignore
+            address = address_div.find_all('div')[1].get_text(strip=True) if len(address_div.find_all('div')) > 1 else '' # type: ignore 
         elif address_div := company.find('div', class_='listing_diachi_nologo'): # type: ignore
             address = address_div.find_all('div')[1].get_text(strip=True) if len(address_div.find_all('div')) > 1 else '' # type: ignore
 
@@ -73,7 +72,9 @@ for base_url, page in itertools.product(config.url_list, range(1)):
                 customer_phone_number = phone_tag.find_next('small').get_text(strip=True) # type: ignore
 
         # Extract specialisation from the base URL
-        specialisation = utils.extract_specialisation(base_url)
+        specialisation = url.split('cateprovinces/')[1].split('/')[1].split('-%E1%BB%9F-t%E1%BA%A1i-')[0]
+        specialisation = requests.utils.unquote(specialisation) # type: ignore
+        specialisation = specialisation.replace('-', ' ')
 
         # Append the extracted info to the list
         company_info.append({
@@ -96,4 +97,4 @@ df = df.drop_duplicates()
 
 # Save the DataFrame to a CSV file
 df.to_csv(config.file_name, index=False, encoding='utf-8-sig')
-print("Done.")
+print(f'Done, check {config.file_name} for data.') 
