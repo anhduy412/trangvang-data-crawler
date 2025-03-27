@@ -1,4 +1,4 @@
-def extract_email_and_website(company):
+def get_email_and_website(company):
     email_section = company.find('div', class_='email_web_section')
     email = ''
     website = ''

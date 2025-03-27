@@ -1,4 +1,4 @@
-def get_comp_address(company):
+def get_address(company):
     address = ''
     if address_div := company.find('div', class_='logo_congty_diachi'):
         address = address_div.find_all('div')[1].get_text(strip=True) if len(address_div.find_all('div')) > 1 else ''

@@ -1,6 +1,5 @@
-from utilities.crawl_info import crawl_companies_info
-
-from utilities.save import save_to_csv
+from utils.crawl_info import crawl_companies_info
+from utils.save_companies_info import save_to_csv
 import config
 
 # Crawl company info

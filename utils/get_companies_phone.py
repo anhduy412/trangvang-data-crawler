@@ -1,4 +1,4 @@
-def get_comp_phone(company):
+def get_phone(company):
     phone = ''
     if phone_div := company.find('div', class_='listing_dienthoai'):
         phone = phone_div.find('a').get_text(strip=True) if phone_div.find('a') else ''

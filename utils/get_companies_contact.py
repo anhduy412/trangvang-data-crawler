@@ -1,9 +1,8 @@
-def extract_contact_info(company_soup):
+def get_contact_info(company_soup):
     contact_info = company_soup.find('div', class_='w-100 rounded-3 bg-white p-3 pt-4 mb-3 border-bottom')
     customer_name = None
     position = None
     customer_phone_number = None
-
     if contact_info:
         if customer_name_tag := contact_info.find('small', class_='red_color fw500'):
             customer_name = customer_name_tag.get_text(strip=True)
