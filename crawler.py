@@ -97,4 +97,4 @@ df = df.drop_duplicates()
 
 # Save the DataFrame to a CSV file
 df.to_csv(config.file_name, index=False, encoding='utf-8-sig')
-print(f'Done, check {config.file_name} for data.') 
+print(f'Done, check {config.file_name} for data.')
